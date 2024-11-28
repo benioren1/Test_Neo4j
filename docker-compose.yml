@@ -1,0 +1,15 @@
+services:
+  neo4j:
+    image: neo4j:latest
+    ports:
+      - "7474:7474"  # פורט ל-HTTP
+      - "7687:7687"  # פורט ל-Bolt
+    environment:
+      NEO4J_AUTH: neo4j/password  # שם משתמש וסיסמא
+    volumes:
+      - neo4j_data:/data  # קישור לנפח נתונים
+      - neo4j_logs:/logs  # קישור לנפח לוגים
+
+volumes:
+  neo4j_data:  # הגדרת נפח נתונים ל-neo4j
+  neo4j_logs:
