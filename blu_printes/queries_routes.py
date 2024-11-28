@@ -48,3 +48,12 @@ def get_last_device_connection1():
     last_connection = query.get_last_device_connection(device_id)
     return jsonify({"device_id": device_id, "last_connection": last_connection}), 200
 
+@bp_query.route("/api/devices/signal-strength", methods=["GET"])
+def get_devices_with_signal_strength1():
+    query = Queries(neo4j_driver)
+    results = query.find_relationships_with_signal_strength()
+
+    if not results:
+        return jsonify({"message": "No devices found with sufficient signal strength"}), 404
+
+    return jsonify({"devices": results}), 200

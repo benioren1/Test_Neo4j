@@ -18,6 +18,22 @@ class Queries:
             record = result.single()
             return {"bluetooth_connection_length": record['lennnn'] if record else 0}
 
+
+
+    #Expose flask’s endpoint for finding all devices connected to each other with a signal strength stronger than -60.
+
+    def find_relationships_with_signal_strength(self):
+        with self.driver.session() as session:
+            result = session.run("""
+                MATCH (d:Device)-[r:INTERACTED_WITH]-(d2:Device)
+                WHERE r.signal_strength_dbm > -60
+                RETURN r.id AS rId, d.id AS deviceId, d2.id AS connectedDeviceId, r.signal_strength_dbm as signal_strength_dbm
+            """)
+            return [{"id": record['rId'], "from": record['deviceId'],
+                     "to": record['connectedDeviceId'],
+                     "signalStrength": record['signal_strength_dbm']} for record in result]
+
+
     def count_connected_devices(self, device_id):
         device_id = device_id.strip()
 
@@ -62,7 +78,7 @@ class Queries:
                 return None
 
 
-            timestamp = record["timestamp"].iso_format() if record["timestamp"] else None
+            timestamp = record["timestamp"] if record["timestamp"] else None
 
             return {
                 'timestamp': timestamp,
