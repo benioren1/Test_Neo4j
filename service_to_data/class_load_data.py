@@ -3,12 +3,10 @@ class PhoneTrackerRepository:
         self.driver = driver
 
     def create_graph(self, data):
-        if isinstance(data, list):  # בדיקה האם המידע מגיע כרשימה
-            data = data[0]  # קח את המילון הראשון
-
+        if isinstance(data, list):
+            data = data[0]
         devices = data["devices"]
         interaction = data["interaction"]
-
         with self.driver.session() as session:
             for device in devices:
                 session.run("""
@@ -25,16 +23,15 @@ class PhoneTrackerRepository:
                             latitude=device['location']['latitude'], longitude=device['location']['longitude'],
                             altitude_meters=device['location']['altitude_meters'],
                             accuracy_meters=device['location']['accuracy_meters'])
-
             session.run("""
                 MATCH (from:Device {id: $from_id}), (to:Device {id: $to_id})
-                MERGE (from)-[r:INTERACTED_WITH]->(to)
+                CREATE (from)-[r:INTERACTED_WITH]->(to)
                 SET r.method = $method,
                     r.bluetooth_version = $bluetooth_version,
                     r.signal_strength_dbm = $signal_strength_dbm,
                     r.distance_meters = $distance_meters,
                     r.duration_seconds = $duration_seconds,
-                    r.timestamp = datetime($timestamp)
+                    r.timestamp = $timestamp
             """, from_id=interaction['from_device'], to_id=interaction['to_device'],
                         method=interaction['method'], bluetooth_version=interaction['bluetooth_version'],
                         signal_strength_dbm=interaction['signal_strength_dbm'],

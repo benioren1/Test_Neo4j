@@ -9,7 +9,7 @@ bp_load = Blueprint("load",__name__)
 @bp_load.route("/api/phone_tracker", methods=["POST"])
 def create_phone_tracker():
     data = request.get_json()
-    print(json.dumps(data, indent=4))  # להדפסת ה-JSON בצורה מסודרת
+    print(json.dumps(data, indent=4))
     query = PhoneTrackerRepository(neo4j_driver)
     result = query.create_graph(data)
     return jsonify(result)
